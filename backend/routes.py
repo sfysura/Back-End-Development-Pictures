@@ -35,7 +35,9 @@ def count():
 ######################################################################
 @app.route("/picture", methods=["GET"])
 def get_pictures():
-    pass
+    if data:
+        return data, 200
+    return {"Message": "There is no Data"}, 500
 
 ######################################################################
 # GET A PICTURE
@@ -44,7 +46,11 @@ def get_pictures():
 
 @app.route("/picture/<int:id>", methods=["GET"])
 def get_picture_by_id(id):
-    pass
+    for i in data:
+        if i['id'] == id:
+            return i, 200
+    
+    return {"Message": "No such ID"}, 404
 
 
 ######################################################################
@@ -52,7 +58,15 @@ def get_picture_by_id(id):
 ######################################################################
 @app.route("/picture", methods=["POST"])
 def create_picture():
-    pass
+    pic = request.json
+    if not pic: 
+        return {"Message": "Invalid input parameters"}, 422 
+    for i in data:
+        if i['id'] == pic['id']:
+            return {"Message": f"picture with id {pic['id']} already present"}, 302
+    
+    data.append(pic)
+    return pic, 201
 
 ######################################################################
 # UPDATE A PICTURE
@@ -61,11 +75,21 @@ def create_picture():
 
 @app.route("/picture/<int:id>", methods=["PUT"])
 def update_picture(id):
-    pass
+    new_pic = request.json
+    for index, pic in enumerate(data):
+        if pic['id'] == id:
+            data[index] = new_pic
+            return {"Message": "This picture has been updated"}, 302
+    return {"Message": "picture not found"}, 404
 
 ######################################################################
 # DELETE A PICTURE
 ######################################################################
 @app.route("/picture/<int:id>", methods=["DELETE"])
 def delete_picture(id):
-    pass
+    for index, pic in enumerate(data):
+        if pic['id'] == id:
+            data.pop(index)
+            return {"Message": "Picture has been deleted"}, 204
+    return {"Message": "picture not found"}, 404
+
